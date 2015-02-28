@@ -43,6 +43,7 @@ class GameControl {
     }
     // 存取数据
     func saveData() {
+        
         var path = NSHomeDirectory().stringByAppendingPathComponent("Documents") .stringByAppendingString("/a.txt")
         var dic = NSDictionary(object: highest, forKey: "fs")
         println(dic)
@@ -66,10 +67,21 @@ class GameControl {
         scoreDelegate = delegate
         readData()
         
+        
+ /*       var a = [
+            [0,2,4,8],
+            [16,32,64,128],
+            [256,512,1024,2048],
+            [0,0,0,0]
+        ]*/
+        
+        
         for var y:Int=0; y<4; y++ {
             var _arr:[Int] = []
             for var x:Int=0; x<4; x++ {
                 _arr.append(0)
+              /*  _arr.append(a[y][x])
+                game.createTile((y,x), num: a[y][x])*/
             }
             arr.append(_arr)
         }

@@ -10,7 +10,7 @@ import UIKit
 
 
 
-class ViewController: UIViewController, ScoreDelegate, UIAlertViewDelegate {
+class ViewController: UIViewController, ScoreDelegate, UIAlertViewDelegate, WBHttpRequestDelegate {
     
     var gameControl:GameControl?
     
@@ -49,6 +49,28 @@ class ViewController: UIViewController, ScoreDelegate, UIAlertViewDelegate {
     }
     // 微博分享
     @IBAction func buttonShared(sender: AnyObject) {
+        UIGraphicsBeginImageContext(self.view.bounds.size)
+        self.view.layer.renderInContext(UIGraphicsGetCurrentContext())
+        var image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        
+        var wbmessage: WBMessageObject = WBMessageObject.message() as WBMessageObject
+        wbmessage.text = "测试   项目地址 https://github.com/CeZQ/my2048   "
+        var wbImage = WBImageObject.object() as WBImageObject
+        wbImage.imageData = UIImagePNGRepresentation(image);
+        wbmessage.imageObject = wbImage;
+        
+        var authRequest = WBAuthorizeRequest.request() as WBAuthorizeRequest
+        authRequest.redirectURI = "https://api.weibo.com/oauth2/default.html";
+        authRequest.scope = "all";
+        
+        var app = UIApplication.sharedApplication().delegate as AppDelegate
+        
+        var token:String? = app.token
+        
+        var request = WBSendMessageToWeiboRequest.requestWithMessage(wbmessage, authInfo: authRequest, access_token: token) as WBBaseRequest
+        WeiboSDK.sendRequest(request)
         
     }
     

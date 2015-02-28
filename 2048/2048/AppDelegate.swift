@@ -9,15 +9,70 @@
 import UIKit
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, WeiboSDKDelegate {
 
     var window: UIWindow?
-
+    
+    
+    
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
+        WeiboSDK.enableDebugMode(true)
+        WeiboSDK.registerApp("4133137512")
+        
+        
+        readToken()
+        
         return true
     }
+    
+    /*
+        微博SDK
+    */
+    
+    var token:String?
+    var userID:String?
+    
+    func saveToken() {
+        var path = NSHomeDirectory().stringByAppendingPathComponent("Documents") .stringByAppendingString("/token.txt")
+        var dic = NSMutableDictionary(capacity: 2)//NSDictionary(objects: [token, userID], forKeys: ["token", "userID"])
+        dic.setValue(token, forKey: "token")
+        dic.setValue(userID, forKey: "userID")
+        println(dic)
+        dic.writeToFile(path, atomically: true)
+    }
+    func readToken() {
+        var path = NSHomeDirectory().stringByAppendingPathComponent("Documents") .stringByAppendingString("/token.txt")
+        var dic = NSDictionary(contentsOfFile: path)
+        println(dic)
+        if dic == nil {
+            return
+        }
+        token = String(dic?.valueForKey("token") as NSString)
+        userID = String(dic?.valueForKey("userID") as NSString)
+    }
+    
+    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject?) -> Bool {
+        return WeiboSDK.handleOpenURL(url, delegate: self)
+    }
+    func application(application: UIApplication, handleOpenURL url: NSURL) -> Bool {
+        return WeiboSDK.handleOpenURL(url, delegate: self)
+    }
+    
+    func didReceiveWeiboRequest(request: WBBaseRequest!) {
+        
+    }
+    func didReceiveWeiboResponse(response: WBBaseResponse!) {
+        if response.isKindOfClass(WBAuthorizeResponse.classForCoder()) {
+            var wb = response as WBAuthorizeResponse
+            token = wb.accessToken
+            userID = wb.userID
+            saveToken()
+        }
+    }
+    
 
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
