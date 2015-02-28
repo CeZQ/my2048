@@ -43,6 +43,18 @@ class ViewController: UIViewController, ScoreDelegate, UIAlertViewDelegate, WBHt
         }
     }
     
+    // 保存
+    @IBAction func buttonSave(sender: AnyObject) {
+        var msg:String?
+        if gameControl!.saveGame() {
+            msg = "保存成功"
+        }
+        else {
+            msg = "保存失败"
+        }
+        var al = UIAlertView(title: "消息", message: msg, delegate: nil, cancelButtonTitle: "确定")
+        al.show()
+    }
     // 重置
     @IBAction func buttonStart(sender: UIButton) {
         gameControl?.reset()

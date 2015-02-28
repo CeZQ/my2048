@@ -41,7 +41,7 @@ class GameControl {
             saveData()
         }
     }
-    // 存取数据
+    // 存取分数
     func saveData() {
         
         var path = NSHomeDirectory().stringByAppendingPathComponent("Documents") .stringByAppendingString("/a.txt")
@@ -58,6 +58,45 @@ class GameControl {
         }
     }
     
+    // 游戏存档、读档
+    func saveGame() -> Bool {
+        var path = NSHomeDirectory().stringByAppendingPathComponent("Documents") .stringByAppendingString("/game.txt")
+        var dic = NSMutableDictionary(capacity: 2)
+        dic.setValue(arr, forKey: "arr")
+        dic.setValue(current, forKey: "current")
+        
+/*        println(path)
+        println(dic)*/
+        
+        if dic.writeToFile(path, atomically: true) {
+            return true
+        }
+        return false
+    }
+    func readGame() ->Bool {
+        var path = NSHomeDirectory().stringByAppendingPathComponent("Documents") .stringByAppendingString("/game.txt")
+        var dic = NSDictionary(contentsOfFile: path)
+        
+        if dic == nil {
+            return false
+        }
+        
+        var _arr:[[Int]]?
+        var _current:Int?
+        _arr = dic!.valueForKey("arr") as? [[Int]]
+        _current = dic!.valueForKey("current") as? Int
+        
+        current = _current!
+        
+        for var y:Int=0; y<4; y++ {
+            for var x:Int=0; x<4; x++ {
+                arr[y][x] = _arr![y][x]
+                game!.createTile((y,x), num: arr[y][x])
+            }
+        }
+        return true
+    }
+    
     
        
     
@@ -65,28 +104,22 @@ class GameControl {
     init(Game game:Game, ScoreDelegate delegate:ScoreDelegate) {
         self.game = game
         scoreDelegate = delegate
-        readData()
         
-        
- /*       var a = [
-            [0,2,4,8],
-            [16,32,64,128],
-            [256,512,1024,2048],
-            [0,0,0,0]
-        ]*/
         
         
         for var y:Int=0; y<4; y++ {
             var _arr:[Int] = []
             for var x:Int=0; x<4; x++ {
                 _arr.append(0)
-              /*  _arr.append(a[y][x])
-                game.createTile((y,x), num: a[y][x])*/
             }
             arr.append(_arr)
         }
-        newTile()
-        newTile()
+        
+        readData()
+        if !readGame() {
+            newTile()
+            newTile()
+        }
         
         test()
     }
@@ -109,6 +142,7 @@ class GameControl {
         test()
     }
     
+    // 创建新的方块
     func newTile() ->Bool {
         var nulls : [(y:Int,x:Int)] = []
         for var y:Int=0; y<4; y++ {
@@ -131,7 +165,7 @@ class GameControl {
         return true
     }
     
-    
+    // 打印arr
     func test() {
         for var y:Int=0; y<4; y++ {
             for var x:Int=0; x<4; x++ {
@@ -152,6 +186,10 @@ class GameControl {
         println()
     }
     
+    
+    /**
+        移动
+    */
     enum MOVE{
         case UP
         case DOWN
@@ -178,10 +216,7 @@ class GameControl {
             println()
         }
         if newtile {
-            if !newTile() {
-                // game over
-                scoreDelegate?.gameOver()
-            }
+            newTile()
             newtile = false
         }
         test()

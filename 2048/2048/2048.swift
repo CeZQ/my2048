@@ -37,6 +37,7 @@ class Game: UIView {
             for var x:CGFloat=0; x<4; x++ {
                 _Tiles.append(nil)
                 _Coordinates.append(CGPointMake(间距 + (间距+边长)*x, 间距 + (间距+边长)*y))
+                // 背景
                 var vi:UIView = UIView(frame: CGRectMake(间距 + (间距+边长)*x, 间距 + (间距+边长)*y, 边长, 边长))
                 vi.backgroundColor = UIColor(red: 52/255.0, green: 56/255.0, blue: 58/255.0, alpha: 1)
                 self.addSubview(vi)
@@ -53,7 +54,7 @@ class Game: UIView {
     }
     
     
-    
+    // 创建
     func createTile(p:(y:Int,x:Int), num:Int) -> TileView {
         var tile = TileView(frame: CGRectMake(Coordinates[p.y][p.x].x, Coordinates[p.y][p.x].y, 边长, 边长))
         tile.num = num
@@ -65,6 +66,7 @@ class Game: UIView {
         
         return tile
     }
+    // 删除
     func delTile(pt:(y:Int,x:Int)) {
         var tile = Tiles[pt.y][pt.x]!
         self.Tiles[pt.y][pt.x] = nil
@@ -72,8 +74,7 @@ class Game: UIView {
         tile.amDelete()
     }
     
-    // 移动、合并
-    
+    // 移动
     func move(p1:(y:Int,x:Int), to p2:(y:Int,x:Int)) {
         var tile = Tiles[p1.y][p1.x]!
         Tiles[p2.y][p2.x] = tile
@@ -83,7 +84,7 @@ class Game: UIView {
         
         tile.amMove(cod)
     }
-    
+    // 合并
     func merger(p1:(y:Int,x:Int), to p2:(y:Int,x:Int)) {
         println("合并")
         
