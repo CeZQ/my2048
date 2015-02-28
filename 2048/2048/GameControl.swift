@@ -24,7 +24,9 @@ class GameControl {
     
     var arr:[[Int]] = []
     
-    // 分数
+    /**
+        分数
+    */
     var current:Int = 0 {
         didSet {
             scoreDelegate?.setCurrent(current)
@@ -36,23 +38,33 @@ class GameControl {
     var highest:Int = 0 {
         didSet {
             scoreDelegate?.setHighest(highest)
+            saveData()
+        }
+    }
+    // 存取数据
+    func saveData() {
+        var path = NSHomeDirectory().stringByAppendingPathComponent("Documents") .stringByAppendingString("/a.txt")
+        var dic = NSDictionary(object: highest, forKey: "fs")
+        println(dic)
+        dic.writeToFile(path, atomically: true)
+    }
+    func readData() {
+        var path = NSHomeDirectory().stringByAppendingPathComponent("Documents") .stringByAppendingString("/a.txt")
+        var dic = NSDictionary(contentsOfFile: path)
+        println(dic)
+        if dic != nil {
+            highest = Int(dic!.valueForKey("fs")!.intValue)
         }
     }
     
     
-    enum MOVE{
-        case UP
-        case DOWN
-        case LEFT
-        case RIGHT
-        case NULL
-    }
+       
+    
     
     init(Game game:Game, ScoreDelegate delegate:ScoreDelegate) {
         self.game = game
-        //self.viewController = viewController
         scoreDelegate = delegate
-        
+        readData()
         
         for var y:Int=0; y<4; y++ {
             var _arr:[Int] = []
@@ -81,6 +93,7 @@ class GameControl {
         newTile()
         current = 0
         
+        
         test()
     }
     
@@ -107,6 +120,36 @@ class GameControl {
     }
     
     
+    func test() {
+        for var y:Int=0; y<4; y++ {
+            for var x:Int=0; x<4; x++ {
+                if arr[y][x] == 0 {
+                    print("0 ")
+                }
+                else {
+                    print("\(arr[y][x]) ")
+                }
+            }
+            println()
+        }
+        println()
+        
+        game?.test()
+        
+        println()
+        println()
+    }
+    
+    enum MOVE{
+        case UP
+        case DOWN
+        case LEFT
+        case RIGHT
+        case NULL
+    }
+    
+    var newtile = false
+    
     func move(move:MOVE) {
         switch move {
         case .UP:
@@ -132,36 +175,6 @@ class GameControl {
         test()
     }
     
-    func test() {
-        for var y:Int=0; y<4; y++ {
-            for var x:Int=0; x<4; x++ {
-                if arr[y][x] == 0 {
-                    print("0 ")
-                }
-                else {
-                    print("\(arr[y][x]) ")
-                }
-            }
-            println()
-        }
-        println()
-        
-        game?.test()
-        
-        println()
-        println()
-    }
-    
-    var newtile = false
-    
-    
-    func over() -> Bool {
-        
-        
-        return false
-    }
-    
-    
     func up() {
         for (var x = 0; x < 4; x++) {
             var h = 0;
@@ -169,31 +182,24 @@ class GameControl {
                 if (arr[y][x] == 0)	{
                     continue;
                 }
-                for (var s = h; s < y; s++) {
-                    if (arr[s][x] == 0) {
-                        
-                        
-                        arr[s][x] = arr[y][x]
+                for (; h < y; h++) {
+                    if (arr[h][x] == 0) {
+                        arr[h][x] = arr[y][x]
                         arr[y][x] = 0
-                        game?.move((y,x), to: (s,x))
-                        
+                        game?.move((y,x), to: (h,x))
                         newtile = true
-                        h--
                         break
                     }
-                    if (arr[s][x] == arr[y][x]) {
-                        
-                        arr[s][x] *= 2
+                    if (arr[h][x] == arr[y][x]) {
+                        arr[h][x] *= 2
                         arr[y][x] = 0
-                        game?.merger((y,x), to: (s,x))
-                        
-                        current += arr[s][x]
-                        
+                        game?.merger((y,x), to: (h,x))
+                        current += arr[h][x]
+                        h++
                         newtile = true
                         break
                     }
                 }
-                h++
             }
         }
     }
@@ -204,25 +210,24 @@ class GameControl {
                 if (arr[y][x] == 0)	{
                     continue;
                 }
-                for (var s = h; s > y; s--) {
-                    if (arr[s][x] == 0) {
-                        arr[s][x] = arr[y][x]
+                for (; h > y; h--) {
+                    if (arr[h][x] == 0) {
+                        arr[h][x] = arr[y][x]
                         arr[y][x] = 0
-                        game?.move((y,x), to: (s,x))
+                        game?.move((y,x), to: (h,x))
                         newtile = true
-                        h++
                         break
                     }
-                    if (arr[s][x] == arr[y][x]) {
-                        arr[s][x] *= 2
+                    if (arr[h][x] == arr[y][x]) {
+                        arr[h][x] *= 2
                         arr[y][x] = 0
-                        game?.merger((y,x), to: (s,x))
-                        current += arr[s][x]
+                        game?.merger((y,x), to: (h,x))
+                        current += arr[h][x]
+                        h--
                         newtile = true
                         break
                     }
                 }
-                h--
             }
         }
     }
@@ -233,25 +238,24 @@ class GameControl {
                 if (arr[y][x] == 0)	{
                     continue;
                 }
-                for (var s = h; s < x; s++) {
-                    if (arr[y][s] == 0) {
-                        arr[y][s] = arr[y][x]
+                for (; h < x; h++) {
+                    if (arr[y][h] == 0) {
+                        arr[y][h] = arr[y][x]
                         arr[y][x] = 0
-                        game?.move((y,x), to: (y,s))
+                        game?.move((y,x), to: (y,h))
                         newtile = true
-                        h--
                         break
                     }
-                    if (arr[y][s] == arr[y][x]) {
-                        arr[y][s] *= 2
+                    if (arr[y][h] == arr[y][x]) {
+                        arr[y][h] *= 2
                         arr[y][x] = 0
-                        game?.merger((y,x), to: (y,s))
-                        current += arr[y][s]
+                        game?.merger((y,x), to: (y,h))
+                        current += arr[y][h]
+                        h++
                         newtile = true
                         break
                     }
                 }
-                h++
             }
         }
     }
@@ -262,25 +266,24 @@ class GameControl {
                 if (arr[y][x] == 0)	{
                     continue;
                 }
-                for (var s = h; s > x; s--) {
-                    if (arr[y][s] == 0) {
-                        arr[y][s] = arr[y][x]
+                for (; h > x; h--) {
+                    if (arr[y][h] == 0) {
+                        arr[y][h] = arr[y][x]
                         arr[y][x] = 0
-                        game?.move((y,x), to: (y,s))
+                        game?.move((y,x), to: (y,h))
                         newtile = true
-                        h++
                         break
                     }
-                    if (arr[y][s] == arr[y][x]) {
-                        arr[y][s] *= 2
+                    if (arr[y][h] == arr[y][x]) {
+                        arr[y][h] *= 2
                         arr[y][x] = 0
-                        game?.merger((y,x), to: (y,s))
-                        current += arr[y][s]
+                        game?.merger((y,x), to: (y,h))
+                        current += arr[y][h]
+                        h--
                         newtile = true
                         break
                     }
                 }
-                h--
             }
         }
     }

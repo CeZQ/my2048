@@ -15,7 +15,6 @@ class ViewController: UIViewController, ScoreDelegate, UIAlertViewDelegate {
     var gameControl:GameControl?
     
     
-//    var buttonStart:UIButton?
     
     // 分数
     @IBOutlet weak var Current: UILabel!
@@ -33,6 +32,7 @@ class ViewController: UIViewController, ScoreDelegate, UIAlertViewDelegate {
         al.show()
         
     }
+    
     func alertView(alertView: UIAlertView, didDismissWithButtonIndex buttonIndex: Int) {
         println(buttonIndex)
         switch buttonIndex {
@@ -46,19 +46,12 @@ class ViewController: UIViewController, ScoreDelegate, UIAlertViewDelegate {
     // 重置
     @IBAction func buttonStart(sender: UIButton) {
         gameControl?.reset()
-        //current = 0
     }
-    
-    
-    // 存取数据
-    //var data:Dictionary<String, Int> = []
-    
-    func saveData() {
-       
-    }
-    func readData() {
+    // 微博分享
+    @IBAction func buttonShared(sender: AnyObject) {
         
     }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,17 +68,15 @@ class ViewController: UIViewController, ScoreDelegate, UIAlertViewDelegate {
         gameControl = gc
         
     }
-    
-    func initializationScores() {
-        Current.text = "0"
-    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    // 移动
+/**
+    触摸滑动方向的判断
+*/
     var point:CGPoint?
     override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
         point = touches.anyObject()?.locationInView(self.view)
